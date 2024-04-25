@@ -35,7 +35,6 @@ import Text.Read (Read (..))
 import qualified Data.String
 import qualified Data.Text as T
 import qualified Data.Text.Short as ST
-import qualified Language.Haskell.TH.Syntax as TH
 import qualified Test.QuickCheck as QC
 
 newtype Key = Key { unKey :: Text }
@@ -97,18 +96,7 @@ instance Monoid Key where
     mempty = Key mempty
     mappend = (<>)
 
-instance TH.Lift Key where
-#if MIN_VERSION_text(1,2,4)
-    lift (Key k) = [| Key k |]
-#else
-    lift k = [| fromString k' |] where k' = toString k
-#endif
 
-#if MIN_VERSION_template_haskell(2,17,0)
-    liftTyped = TH.unsafeCodeCoerce . TH.lift
-#elif MIN_VERSION_template_haskell(2,16,0)
-    liftTyped = TH.unsafeTExpCoerce . TH.lift
-#endif
 
 -- | @since 2.0.3.0
 instance QC.Arbitrary Key where

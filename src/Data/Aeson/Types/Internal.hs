@@ -90,13 +90,12 @@ import Data.Char (isLower, isUpper, toLower, isAlpha, isAlphaNum)
 import Data.Aeson.Key (Key)
 import Data.Hashable (Hashable(..))
 import Data.List (intercalate)
-import Data.Text (pack, unpack)
+import Data.Text (pack)
 import Data.Time.Format (FormatTime)
 import Data.Aeson.KeyMap (KeyMap)
 import qualified Control.Monad as Monad
 import qualified Control.Monad.Fail as Fail
 import qualified Data.Vector as V
-import qualified Language.Haskell.TH.Syntax as TH
 import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import qualified Data.Scientific as Sci
@@ -530,23 +529,6 @@ hashValue s Null         = s `hashWithSalt` (5::Int)
 
 instance Hashable Value where
     hashWithSalt = hashValue
-
--- | @since 0.11.0.0
-instance TH.Lift Value where
-    lift Null       = [| Null |]
-    lift (Bool b)   = [| Bool b |]
-    lift (Number n) = [| Number n |]
-    lift (String t) = [| String (pack s) |]
-      where s = unpack t
-    lift (Array a)  = [| Array (V.fromList a') |]
-      where a' = V.toList a
-    lift (Object o) = [| Object o |]
-
-#if MIN_VERSION_template_haskell(2,17,0)
-    liftTyped = TH.unsafeCodeCoerce . TH.lift
-#elif MIN_VERSION_template_haskell(2,16,0)
-    liftTyped = TH.unsafeTExpCoerce . TH.lift
-#endif
 
 -- | The empty array.
 emptyArray :: Value

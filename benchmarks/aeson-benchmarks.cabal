@@ -28,6 +28,7 @@ library
   build-depends:    base
 
 executable aeson-bench
+  buildable:        False
   default-language: Haskell2010
   main-is:          aeson-benchmark-suite.hs
   hs-source-dirs:   bench examples/src

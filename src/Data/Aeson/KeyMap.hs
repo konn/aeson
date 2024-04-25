@@ -3,7 +3,6 @@
 {-# LANGUAGE DeriveFunctor #-}
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE TemplateHaskellQuotes #-}
 {-# LANGUAGE TypeFamilies #-}
 
 -- |
@@ -123,7 +122,6 @@ import qualified Data.Traversable as T
 import qualified Data.HashMap.Strict as H
 import qualified Data.List as L
 import qualified Data.Map.Strict as M
-import qualified Language.Haskell.TH.Syntax as TH
 import qualified Data.Foldable.WithIndex    as WI (FoldableWithIndex (..))
 import qualified Data.Functor.WithIndex     as WI (FunctorWithIndex (..))
 import qualified Data.Traversable.WithIndex as WI (TraversableWithIndex (..))
@@ -639,19 +637,6 @@ instance GHC.Exts.IsList (KeyMap v) where
     type Item (KeyMap v) = (Key, v)
     fromList = fromList
     toList   = toAscList
-
--------------------------------------------------------------------------------
--- template-haskell
--------------------------------------------------------------------------------
-
-instance TH.Lift v => TH.Lift (KeyMap v) where
-    lift m = [| fromList m' |] where m' = toList m
-
-#if MIN_VERSION_template_haskell(2,17,0)
-    liftTyped = TH.unsafeCodeCoerce . TH.lift
-#elif MIN_VERSION_template_haskell(2,16,0)
-    liftTyped = TH.unsafeTExpCoerce . TH.lift
-#endif
 
 -------------------------------------------------------------------------------
 -- hashable
