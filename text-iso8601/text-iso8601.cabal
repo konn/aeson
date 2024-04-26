@@ -12,9 +12,7 @@ license-file:       LICENSE
 category:           Parsing
 copyright:          Oleg Grenrus <oleg.grenrus@iki.fi>
 author:             Oleg Grenrus <oleg.grenrus@iki.fi>
-maintainer:
-  Oleg Grenrus <oleg.grenrus@iki.fi>
-
+maintainer:         Oleg Grenrus <oleg.grenrus@iki.fi>
 homepage:           https://github.com/haskell/aeson
 bug-reports:        https://github.com/haskell/aeson/issues
 build-type:         Simple
@@ -62,7 +60,7 @@ test-suite text-iso8601-tests
       base
     , text
     , text-iso8601
-    , time-compat
+    , time
 
   -- test dependencies
   build-depends:
@@ -82,7 +80,7 @@ benchmark text-iso8601-bench
       base
     , text
     , text-iso8601
-    , time-compat
+    , time
 
   -- bench dependencies
   build-depends:

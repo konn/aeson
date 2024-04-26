@@ -1,16 +1,15 @@
 {-# LANGUAGE OverloadedStrings #-}
+
 module UnitTests.UTCTime (utcTimeTests) where
 
-import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.HUnit (testCase, testCaseSteps, Assertion, assertEqual, assertFailure)
+import Data.Aeson
 import Data.Maybe (fromMaybe)
-import Data.Time (UTCTime, ZonedTime)
-import Data.Time.Format.Compat (parseTimeM, defaultTimeLocale)
-
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Lazy.Encoding as LT
-
-import Data.Aeson
+import Data.Time (UTCTime, ZonedTime)
+import Data.Time.Format (defaultTimeLocale, parseTimeM)
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.HUnit (Assertion, assertEqual, assertFailure, testCase, testCaseSteps)
 
 -- Test decoding various UTC time formats
 utcTimeGood :: Assertion
@@ -65,7 +64,6 @@ utcTimeGood = do
   let ts14 = "2015-08-23T23:59:60.999999999999+00"
   t14 <- parseWithAeson ts14
   assertEqual "utctime" (parseWithRead "%FT%T%QZ" "2015-08-23T23:59:60.999999999999Z") t14
-
   where
     parseWithRead :: String -> LT.Text -> UTCTime
     parseWithRead f s =
@@ -80,13 +78,13 @@ utcTimeBad :: (String -> IO ()) -> Assertion
 utcTimeBad info = do
   verifyFailParse "2000-01-01T12:13:00" -- missing Zulu time not allowed (some TZ required)
   verifyFailParse "2000-01-01 12:13:00" -- missing Zulu time not allowed (some TZ required)
-  verifyFailParse "2000-01-01"          -- date only not OK
-  verifyFailParse "2000-01-01Z"         -- date only not OK
+  verifyFailParse "2000-01-01" -- date only not OK
+  verifyFailParse "2000-01-01Z" -- date only not OK
   verifyFailParse "2015-01-01T12:30:00.00+00Z" -- no Zulu if offset given
   verifyFailParse "2015-01-01T12:30:00.00+00:00Z" -- no Zulu if offset given
   verifyFailParse "2015-01-03 12:13:00.Z" -- decimal at the end but no digits
   verifyFailParse "2015-01-03 12:13.000Z" -- decimal at the end, but no seconds
-  verifyFailParse "2015-01-03 23:59:61Z"  -- exceeds allowed seconds per day
+  verifyFailParse "2015-01-03 23:59:61Z" -- exceeds allowed seconds per day
   verifyFailParse "2015-01-03 12:13:00 Z" -- space before Zulu
   verifyFailParse "2015-01-03 12:13:00 +00:00" -- space before offset
   where
@@ -96,15 +94,17 @@ utcTimeBad info = do
       let bs = LT.encodeUtf8 $ LT.concat ["\"", s, "\""]
       let decU = decode bs :: Maybe UTCTime
       let decZ = decode bs :: Maybe ZonedTime
-      assertIsNothing "verify failure UTCTime"   decU
-      assertIsNothing "verify failure ZonedTime"   decZ
+      assertIsNothing "verify failure UTCTime" decU
+      assertIsNothing "verify failure ZonedTime" decZ
 
-assertIsNothing :: Show a => String -> Maybe a -> Assertion
-assertIsNothing _    Nothing = return ()
+assertIsNothing :: (Show a) => String -> Maybe a -> Assertion
+assertIsNothing _ Nothing = return ()
 assertIsNothing err (Just a) = assertFailure $ err ++ " " ++ show a
 
 utcTimeTests :: TestTree
-utcTimeTests = testGroup "utctime" [
-      testCase "good" utcTimeGood
-    , testCaseSteps "bad"  utcTimeBad
+utcTimeTests =
+  testGroup
+    "utctime"
+    [ testCase "good" utcTimeGood
+    , testCaseSteps "bad" utcTimeBad
     ]

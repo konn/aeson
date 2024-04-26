@@ -1,49 +1,48 @@
-{-# LANGUAGE NoImplicitPrelude #-}
 {-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE NoImplicitPrelude #-}
 
-module PropertyRoundTrip ( roundTripTests ) where
-
-import Prelude.Compat
+module PropertyRoundTrip (roundTripTests) where
 
 import Control.Applicative (Const)
 import Data.Aeson.Types
 import Data.DList (DList)
+import qualified Data.Fix as F
+import Data.Int (Int8)
 import Data.List.NonEmpty (NonEmpty)
 import Data.Map (Map)
+import qualified Data.Monoid as Monoid
 import Data.Proxy (Proxy)
 import Data.Ratio (Ratio)
 import Data.Sequence (Seq)
+import qualified Data.Strict as S
 import Data.Tagged (Tagged)
-import Data.These (These (..))
-import Data.Time (Day, DiffTime, LocalTime, NominalDiffTime, TimeOfDay, UTCTime, ZonedTime)
-import Data.Time.Calendar.Month.Compat (Month)
-import Data.Time.Calendar.Quarter.Compat (Quarter, QuarterOfYear)
-import Data.Version (Version)
-import Data.Time.Calendar.Compat (CalendarDiffDays, DayOfWeek)
-import Data.Time.LocalTime.Compat (CalendarDiffTime)
-import Data.Time.Clock.System.Compat (SystemTime)
-import Data.Tuple.Solo (Solo)
-import Network.URI (URI)
-import Numeric.Natural (Natural)
-import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.QuickCheck (testProperty)
-import Types
-import qualified Data.Monoid as Monoid
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
 import qualified Data.Text.Short as ST
+import Data.These (These (..))
+import Data.Time (Day, DiffTime, LocalTime, NominalDiffTime, TimeOfDay, UTCTime, ZonedTime)
+import Data.Time.Calendar (CalendarDiffDays, DayOfWeek)
+import Data.Time.Calendar.Month (Month)
+import Data.Time.Calendar.Quarter (Quarter, QuarterOfYear)
+import Data.Time.Clock.System (SystemTime)
+import Data.Time.LocalTime (CalendarDiffTime)
+import Data.Tuple.Solo (Solo)
 import qualified Data.UUID.Types as UUID
-import qualified Data.Strict as S
-import qualified Data.Fix as F
+import Data.Version (Version)
+import Instances ()
+import Network.URI (URI)
+import Numeric.Natural (Natural)
+import Prelude.Compat
 import PropUtils
 import PropertyRTFunctors
-import Data.Int (Int8)
-
-import Instances ()
+import Test.Tasty (TestTree, testGroup)
+import Test.Tasty.QuickCheck (testProperty)
+import Types
 
 roundTripTests :: TestTree
 roundTripTests =
-  testGroup "roundTrip"
+  testGroup
+    "roundTrip"
     [ testProperty "()" $ roundTripEq @()
     , testProperty "Value" $ roundTripEq @Value
     , testProperty "Bool" $ roundTripEq @Bool
@@ -95,10 +94,11 @@ roundTripTests =
     , testProperty "ShortText" $ roundTripEq @ST.ShortText
     , testProperty "URI" $ roundTripEq @URI
     , roundTripFunctorsTests
-    , testGroup "ghcGenerics" [
-        testProperty "OneConstructor" $ roundTripEq OneConstructor
-      , testProperty "Product2" $ roundTripEq @(Product2 Int Bool)
-      , testProperty "Product6" $ roundTripEq @(Product6 Int Bool String (Approx Double) (Int, Approx Double) ())
-      , testProperty "Sum4" $ roundTripEq @(Sum4 Int8 ZonedTime T.Text (Map String Int))
-      ]
+    , testGroup
+        "ghcGenerics"
+        [ testProperty "OneConstructor" $ roundTripEq OneConstructor
+        , testProperty "Product2" $ roundTripEq @(Product2 Int Bool)
+        , testProperty "Product6" $ roundTripEq @(Product6 Int Bool String (Approx Double) (Int, Approx Double) ())
+        , testProperty "Sum4" $ roundTripEq @(Sum4 Int8 ZonedTime T.Text (Map String Int))
+        ]
     ]
