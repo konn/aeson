@@ -144,9 +144,7 @@ import qualified Data.Strict as S
 import qualified Data.Text as T
 import qualified Data.Text.Encoding as T
 import qualified Data.Text.Lazy as LT
-import qualified Data.Text.Short as ST
 import qualified Data.Tree as Tree
-import qualified Data.UUID.Types as UUID
 import qualified Data.Vector as V
 import qualified Data.Vector.Generic as VG
 import qualified Data.Vector.Primitive as VP
@@ -1830,15 +1828,6 @@ instance FromJSON LT.Text where
 instance FromJSONKey LT.Text where
     fromJSONKey = FromJSONKeyText LT.fromStrict
 
--- | @since 2.0.2.0
-instance FromJSON ST.ShortText where
-    parseJSON = withText "ShortText" $ pure . ST.fromText
-
--- | @since 2.0.2.0
-instance FromJSONKey ST.ShortText where
-    fromJSONKey = FromJSONKeyText ST.fromText
-
-
 instance FromJSON Version where
     parseJSON = withText "Version" parseVersionText
 
@@ -2061,18 +2050,6 @@ instance FromJSON1 Tree.Tree where
 
 instance (FromJSON v) => FromJSON (Tree.Tree v) where
     parseJSON = parseJSON1
-
--------------------------------------------------------------------------------
--- uuid
--------------------------------------------------------------------------------
-
-instance FromJSON UUID.UUID where
-    parseJSON = withText "UUID" $
-        maybe (fail "invalid UUID") pure . UUID.fromText
-
-instance FromJSONKey UUID.UUID where
-    fromJSONKey = FromJSONKeyTextParser $
-        maybe (fail "invalid UUID") pure . UUID.fromText
 
 -------------------------------------------------------------------------------
 -- vector
